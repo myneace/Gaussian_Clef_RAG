@@ -15,7 +15,7 @@ Welcome to the comprehensive documentation for **Gaussian-Clef RAG** — a produ
 | [**Mathematical Foundations**](initial/THEORY.md) | Information geometry theory | Multivariate Gaussian representations $\mathcal{N}(\mu, \Sigma)$, SPD manifolds, ELK, Sylvester theorem |
 | [**Learned Covariance (`ABOUT.md`)**](ABOUT.md) | PyTorch `SigmaHead` deep dive | Contrastive self-supervised learning, query radiation, background fine-tuning daemon |
 | [**Research Questions**](initial/RESEARCH_QUESTIONS.md) | The 20 backbone scientific questions | Theoretical and empirical questions guiding manifold retrieval research |
-| [**Experiments & Benchmarks**](initial/EXPERIMENTS.md) | Empirical evaluation protocol | Latency benchmarks, *48 Laws of Power* exact match testing, ablation studies |
+| [**Experiments & Benchmarks**](initial/EXPERIMENTS.md) | Empirical evaluation protocol | Latency benchmarks, *The 12 Laws of Good Bread* exact match testing, ablation studies |
 | [**Concept Blueprints**](concepts/README.md) | Detailed specifications for polysemy resolution | Polysemy spec, agent dissolver, multi-agent disambiguation, GSKG notes |
 
 ---
@@ -38,4 +38,4 @@ Every knowledge chunk is ingested simultaneously into:
 ### 3. Universal Corpus Generator & Text Normalizer
 - **`TextNormalizer`**: Strips HTML tags/entities, fixes OCR line-break hyphenation (`word-\nbreak`), unwraps soft wraps, removes page numbers and header noise.
 - **`CorpusGenerator`**: Adaptively detects document structure (numbered laws, Q&A pairs, transcripts, semantic sections) and exports to JSONL, Markdown, or text with content-addressed caching (`CorpusCache`).
-- **`data/generate_corpus.py` CLI**: Unified terminal tool supporting piped stdin, file input, raw strings, and presets (`--preset 48-laws`).
+- **`data/generate_corpus.py` CLI**: Unified terminal tool supporting piped stdin, file input, raw strings, and presets (`--preset NAME`).

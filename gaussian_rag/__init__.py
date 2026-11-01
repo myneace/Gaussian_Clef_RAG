@@ -7,8 +7,8 @@ The easiest entry point is the high-level :class:`GaussianRAG` facade::
     from gaussian_rag import GaussianRAG
 
     rag = GaussianRAG.create()
-    rag.add_texts(["Never outshine the master."])
-    results = rag.search("How to behave around powerful people?")
+    rag.add_texts(["Weigh your flour instead of scooping it."])
+    results = rag.search("Why is my bread dense?")
 
 For lower-level control, import individual components directly:
 

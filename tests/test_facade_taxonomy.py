@@ -35,9 +35,9 @@ def rag() -> GaussianRAG:
 def test_facade_build_taxonomy_and_pruning(rag: GaussianRAG):
     """Verify build_taxonomy clusters items and attaches router to facade."""
     passages = [
-        "Topic A law 1: Never outshine the master in power dynamics.",
-        "Topic A law 2: Conceal your intentions until execution.",
-        "Topic A law 3: Always say less than necessary in royal courts.",
+        "Topic A baking law 1: Weigh your flour instead of scooping it.",
+        "Topic A baking law 2: Rest the dough before you begin kneading.",
+        "Topic A baking law 3: Keep the oven well preheated for the first leap.",
         "Topic B physics 1: Quantum entanglement exhibits non-local correlation.",
         "Topic B physics 2: General relativity describes spacetime curvature via stress-energy.",
         "Topic B physics 3: Thermodynamics entropy always increases in isolated systems.",

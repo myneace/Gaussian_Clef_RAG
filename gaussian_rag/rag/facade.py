@@ -15,8 +15,8 @@ Quick-start (3 lines)::
     from gaussian_rag import GaussianRAG
 
     rag = GaussianRAG.create()
-    rag.add_texts(["Never outshine the master.", "Always say less than necessary."])
-    results = rag.search("How should I behave around powerful people?")
+    rag.add_texts(["Weigh your flour instead of scooping it.", "Rest the dough before you knead."])
+    results = rag.search("Why is my bread dense?")
 
 Works standalone — no cloud tokens required.  Activate Cloudflare Clef and
 LLM generation by passing ``use_clef=True`` and supplying API credentials.

@@ -1,7 +1,7 @@
-"""test_48_laws_e2e.py -- End-to-end evaluation on The 48 Laws of Power corpus.
+"""test_bakers_handbook_e2e.py -- End-to-end evaluation on The 12 Laws of Good Bread corpus.
 
 Pipeline stages:
-1. Gaussian Knowledge Store load (cache-aware, skips re-embed if .48_laws_store/ exists)
+1. Gaussian Knowledge Store load (cache-aware, skips re-embed if .bakers_handbook_store/ exists)
 2. Hierarchical Taxonomy build via TaxonomyRouter.build_from_store()
 3. Clef Ambiguity Gate (noul question via request_decision)
 4. Clef Taxonomy Branch Routing (choice question)
@@ -44,7 +44,7 @@ def _ensure_env():
             os.environ.setdefault(k, v)
 
 
-def parse_48_laws(text_path: Path) -> list[tuple[int, str, str, str]]:
+def parse_bakers_laws(text_path: Path) -> list[tuple[int, str, str, str]]:
     """Return list of (law_num, title, heading, full_text) tuples."""
     raw = text_path.read_text(encoding="utf-8")
     sections = re.split(r"\n## Law (\d+): ([^\n]+)\n", raw)
@@ -63,31 +63,31 @@ def parse_48_laws(text_path: Path) -> list[tuple[int, str, str, str]]:
 
 
 def assign_domain(num: int) -> str:
-    if num in {1, 24, 34, 41, 46}:
-        return "Courtiership and Superior Dynamics"
-    elif num in {2, 8, 14, 15, 19, 22, 42, 44}:
-        return "Adversaries Spies and Conflict Tactics"
-    elif num in {3, 4, 5, 6, 12, 16, 21, 26, 30, 36, 38}:
-        return "Deception Reputation and Strategic Secrecy"
-    elif num in {7, 10, 11, 13, 20, 27, 31, 33, 40, 43}:
-        return "Influence Coalitions and Human Leverage"
+    if num in {1, 2, 3}:
+        return "Dough Foundations and Ingredients"
+    elif num in {4, 5, 6}:
+        return "Fermentation Time and Starters"
+    elif num in {7, 8, 9}:
+        return "Shaping Scoring and Handling"
+    elif num in {10, 11}:
+        return "Oven Heat and Steam"
     else:
-        return "Execution Timing and Adaptive Strategy"
+        return "Recovery and Learning From Mistakes"
 
 
 async def main():
     _ensure_env()
     sep = "=" * 80
     print(sep)
-    print("MANIFOLD GAUSSIAN-CLEF RAG: EVALUATION ON THE 48 LAWS OF POWER")
+    print("MANIFOLD GAUSSIAN-CLEF RAG: EVALUATION ON THE 12 LAWS OF GOOD BREAD")
     print(sep)
 
-    corpus_path = _ROOT / "data" / "48_laws_of_power.txt"
+    corpus_path = _ROOT / "benchmarks" / "bakers_handbook.md"
     if not corpus_path.exists():
         print(f"Error: {corpus_path} not found.")
         return
 
-    laws = parse_48_laws(corpus_path)
+    laws = parse_bakers_laws(corpus_path)
     print(f"\n[1] Parsed {len(laws)} laws from corpus.")
 
     # Embedder always needed for query encoding
@@ -98,7 +98,7 @@ async def main():
         embedding_backend="local",
     )
 
-    save_dir = _ROOT / ".48_laws_store"
+    save_dir = _ROOT / ".bakers_handbook_store"
     knowledge_cache = save_dir / "knowledge.json"
 
     # ---- Step 2: Load or Build KnowledgeStore (cache-aware) ------------------
@@ -109,7 +109,7 @@ async def main():
         ms = (time.perf_counter() - t0) * 1000.0
         print(f"    Loaded {len(store.items)} chunks in {ms:.1f}ms (no re-embed needed)")
     else:
-        print("\n[2] Embedding 48 Laws into Gaussian Manifold...")
+        print("\n[2] Embedding 12 Baking Laws into Gaussian Manifold...")
         t0 = time.perf_counter()
         store = KnowledgeStore()
         chunks: list[GaussianKnowledge] = []
@@ -119,7 +119,7 @@ async def main():
                 full_text,
                 item_id=f"law_{num:02d}",
                 metadata={
-                    "document_id": "48_laws_of_power",
+                    "document_id": "bakers_handbook",
                     "law_number": num,
                     "title": title,
                     "heading": heading,
@@ -136,7 +136,7 @@ async def main():
     # ---- Step 3: Build Taxonomy Router ----------------------------------------
     print("\n[3] Building Hierarchical Taxonomy Router...")
     t0 = time.perf_counter()
-    taxonomy = TaxonomyRouter.build_from_store(store, top_branches=5, leaf_size=8)
+    taxonomy = TaxonomyRouter.build_from_store(store, top_branches=5, leaf_size=3)
     ms = (time.perf_counter() - t0) * 1000.0
     bl = taxonomy.branch_labels()
     print(
@@ -167,24 +167,24 @@ async def main():
     # ---- Queries ---------------------------------------------------------------
     test_queries = [
         (
-            "How should I manage my behavior around insecure bosses, "
-            "and what was the mistake of Nicolas Fouquet?",
-            1,
+            "My recipe said two hours but the dough still has not risen — "
+            "should I keep waiting, and what signs tell me it is actually ready?",
+            5,
         ),
         (
-            "Why is it dangerous to hire friends in business or power, "
-            "and what makes a former enemy more loyal?",
-            2,
+            "Why does my dough keep tearing and deflating while I shape it, "
+            "and how should my hands treat it?",
+            7,
         ),
         (
-            "What psychological tactic did Bobby Fischer use against "
-            "Boris Spassky to break his focus?",
-            17,
+            "What does steam actually do for the crust in the first minutes "
+            "of the bake, and why does my crust set too early?",
+            11,
         ),
         (
-            "How does water symbolize the ultimate defense against attacks, "
-            "and why is rigidity fatal?",
-            48,
+            "I baked a flat, dense loaf. Should I throw it away, "
+            "and what can I still do with it?",
+            12,
         ),
     ]
 

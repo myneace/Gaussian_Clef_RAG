@@ -28,12 +28,12 @@ async def test_dashboard_ingest_success():
     """Verify POST /api/ingest processes a valid text file and writes to session store."""
     transport = httpx.ASGITransport(app=app)
     file_content = (
-        b"Law 1: Never outshine the master.\n"
-        b"Always make those above you feel comfortably superior. In your desire to please "
-        b"or impress them, do not go too far in displaying your talents or you might accomplish "
-        b"the opposite - inspire fear and insecurity."
+        b"Law 1: Weigh, don't scoop.\n"
+        b"A cup of flour is a guess and 125 grams is a fact. Scooping straight from "
+        b"the bag can pack in fifty extra grams without you noticing, and that quiet "
+        b"difference is what turns a soft crumb into a dense one."
     )
-    files = {"file": ("power_law_1.txt", file_content, "text/plain")}
+    files = {"file": ("bakers_law_1.txt", file_content, "text/plain")}
 
     created_session_id = None
     try:

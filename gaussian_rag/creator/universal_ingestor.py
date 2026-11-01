@@ -131,8 +131,8 @@ class UniversalIngestor:
     -------
     >>> from gaussian_rag import GaussianRAG
     >>> rag = GaussianRAG.create()
-    >>> rag.add_texts(["Law 1: Never outshine the master."])
-    >>> results = rag.search("How to act around superiors?")
+    >>> rag.add_texts(["Law 1: Weigh your flour instead of scooping it."])
+    >>> results = rag.search("Why is my bread dense?")
     """
 
     def __init__(

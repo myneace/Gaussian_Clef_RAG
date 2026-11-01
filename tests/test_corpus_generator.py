@@ -24,7 +24,7 @@ from gaussian_rag.rag.facade import GaussianRAG
 def test_corpus_cache_miss_then_hit(tmp_path: Path) -> None:
     """Storing docs then looking up the same text returns a cache hit."""
     cache = CorpusCache(cache_dir=tmp_path / "corpus_cache")
-    raw = "Law 1: Never Outshine the Master\nAlways make those above you feel superior."
+    raw = "Law 1: Weigh, Don't Scoop\nA cup of flour is a guess; 125 grams is a fact."
 
     # Initial lookup: miss
     hit, docs = cache.lookup(raw)
@@ -33,7 +33,7 @@ def test_corpus_cache_miss_then_hit(tmp_path: Path) -> None:
 
     # Store
     source_docs = [
-        CorpusDocument(id="d1", title="Law 1", text="Never outshine the master.", section_number=1)
+        CorpusDocument(id="d1", title="Law 1", text="Weigh your flour instead of scooping it.", section_number=1)
     ]
     cache.store(raw, source_docs)
 
@@ -62,7 +62,7 @@ def test_corpus_cache_stale_schema_invalidates(tmp_path: Path) -> None:
     """Cache entries written with an old format_version are discarded on lookup."""
     cache = CorpusCache(cache_dir=tmp_path / "corpus_cache")
     raw = "Law 2: Never trust friends."
-    cache.store(raw, [CorpusDocument(id="d2", title="Law 2", text="Trust no one.")])
+    cache.store(raw, [CorpusDocument(id="d2", title="Law 2", text="Hydrate the dough before kneading.")])
 
     # Corrupt the schema version in meta.json
     import hashlib as _hashlib, json as _json
@@ -105,8 +105,8 @@ def test_corpus_cache_ttl_expiry(tmp_path: Path) -> None:
 def test_corpus_cache_invalidate(tmp_path: Path) -> None:
     """invalidate() removes a specific cache entry."""
     cache = CorpusCache(cache_dir=tmp_path / "corpus_cache")
-    raw = "Law 3: Conceal your intentions."
-    cache.store(raw, [CorpusDocument(id="d3", title="Law 3", text="Never reveal.")])
+    raw = "Law 3: Salt is not optional."
+    cache.store(raw, [CorpusDocument(id="d3", title="Law 3", text="Salt is not optional.")])
 
     removed = cache.invalidate(raw)
     assert removed is True
@@ -148,10 +148,10 @@ def test_corpus_generator_uses_cache(tmp_path: Path) -> None:
     cache = CorpusCache(cache_dir=tmp_path / "corpus_cache")
     generator = CorpusGenerator(cache=cache)
     raw = (
-        "Law 1: Never Outshine the Master\n"
-        "Always make those above you feel comfortably superior.\n\n"
-        "Law 2: Never Put Too Much Trust in Friends\n"
-        "Be wary of friends."
+        "Law 1: Weigh, Don't Scoop\n"
+        "A cup of flour is a guess; 125 grams is a fact.\n\n"
+        "Law 2: Hydrate Before You Knead\n"
+        "Mix flour and water alone, then rest."
     )
 
     # First call: cache miss — full processing
@@ -174,7 +174,7 @@ def test_corpus_generator_no_cache_forces_reprocess(tmp_path: Path) -> None:
     """use_cache=False forces full reprocessing even when an entry exists."""
     cache = CorpusCache(cache_dir=tmp_path / "corpus_cache")
     generator = CorpusGenerator(cache=cache)
-    raw = "Law 5: Reputation is cornerstone of power."
+    raw = "Law 5: Watch the dough, not the clock."
 
     docs1 = generator.generate(raw)
     assert len(docs1) >= 1
@@ -297,17 +297,17 @@ def test_llm_assistant_repair_and_structure(mock_chat: MagicMock) -> None:
 def test_corpus_generator_numbered_sections() -> None:
     generator = CorpusGenerator()
     raw = (
-        "Law 1: Never Outshine the Master\n"
-        "Always make those above you feel comfortably superior.\n\n"
-        "Law 2: Never Put Too Much Trust in Friends\n"
-        "Be wary of friends—they will betray you quickly."
+        "Law 1: Weigh, Don't Scoop\n"
+        "A cup of flour is a guess; 125 grams is a fact.\n\n"
+        "Law 2: Hydrate Before You Knead\n"
+        "Mix flour and water alone, then rest for thirty minutes."
     )
-    docs = generator.generate(raw, title="Greene's Laws")
+    docs = generator.generate(raw, title="The 12 Laws of Good Bread")
     assert len(docs) == 2
     assert docs[0].section_number == 1
-    assert "Never Outshine the Master" in docs[0].title
+    assert "Weigh, Don't Scoop" in docs[0].title
     assert docs[1].section_number == 2
-    assert "Never Put Too Much Trust in Friends" in docs[1].title
+    assert "Hydrate Before You Knead" in docs[1].title
     assert docs[0].structure_type == "numbered_section"
 
 
@@ -342,8 +342,8 @@ def test_corpus_generator_fallback_chunking() -> None:
 def test_corpus_generator_export_jsonl_markdown_text(tmp_path: Path) -> None:
     generator = CorpusGenerator()
     docs = [
-        CorpusDocument(id="doc-1", title="First Law", text="Always obey the rules.", section_number=1),
-        CorpusDocument(id="doc-2", title="Second Law", text="Question everything.", section_number=2),
+        CorpusDocument(id="doc-1", title="First Law", text="Weigh, don't scoop.", section_number=1),
+        CorpusDocument(id="doc-2", title="Second Law", text="Rest, then shape.", section_number=2),
     ]
 
     # JSONL
@@ -379,46 +379,52 @@ def test_corpus_generator_export_jsonl_markdown_text(tmp_path: Path) -> None:
 def test_gaussian_rag_add_raw_text() -> None:
     rag = GaussianRAG.create()
     dirty_text = (
-        "<p>Law 1: Never Outshine the Master<br/>"
-        "Always make those above you feel superior.</p>\n\n"
-        "<p>Law 2: Never Put Too Much Trust in Friends<br/>"
-        "Former enemies are often more loyal than friends.</p>"
+        "<p>Law 1: Weigh, Don't Scoop<br/>"
+        "A cup of flour is a guess; 125 grams is a fact.</p>\n\n"
+        "<p>Law 2: Hydrate Before You Knead<br/>"
+        "Mix flour and water alone, then rest for thirty minutes.</p>"
     )
-    nodes = rag.add_raw_text(dirty_text, title="48 Laws Excerpt")
+    nodes = rag.add_raw_text(dirty_text, title="Baker's Handbook Excerpt")
     assert len(nodes) >= 2
 
     # Verify search finds the cleaned content
-    results = rag.search("How to behave around your master?")
+    results = rag.search("how much flour should I use?")
     assert len(results) > 0
     top_hit = results[0]
-    assert "Never Outshine the Master" in top_hit.knowledge.text or "superior" in top_hit.knowledge.text
+    assert "Scoop" in top_hit.knowledge.text or "flour" in top_hit.knowledge.text
 
 
 # ---------------------------------------------------------------------------
 # CLI integration test
 # ---------------------------------------------------------------------------
 
-def test_cli_preset_48_laws(tmp_path: Path) -> None:
-    out_file = tmp_path / "test_48_laws.txt"
+def test_cli_generates_bundled_handbook(tmp_path: Path) -> None:
+    script_path = Path(__file__).resolve().parent.parent / "data" / "generate_corpus.py"
+    if not script_path.exists():
+        pytest.skip("data/generate_corpus.py is untracked and not present in this checkout")
+    handbook = Path(__file__).resolve().parent.parent / "benchmarks" / "bakers_handbook.md"
+    out_file = tmp_path / "test_bakers_handbook.txt"
     cmd = [
         sys.executable,
-        str(Path(__file__).resolve().parent.parent / "data" / "generate_corpus.py"),
-        "--preset", "48-laws",
+        str(script_path),
+        "-i", str(handbook),
         "-o", str(out_file),
     ]
     res = subprocess.run(cmd, capture_output=True, text=True)
     assert res.returncode == 0
     assert out_file.exists()
     content = out_file.read_text(encoding="utf-8")
-    assert "The 48 Laws of Power by Robert Greene" in content
-    assert "Law 1: Never Outshine the Master" in content
+    assert "Weigh, Don't Scoop" in content
 
 
 def test_cli_raw_text_argument(tmp_path: Path) -> None:
+    script_path = Path(__file__).resolve().parent.parent / "data" / "generate_corpus.py"
+    if not script_path.exists():
+        pytest.skip("data/generate_corpus.py is untracked and not present in this checkout")
     out_file = tmp_path / "cli_corpus.jsonl"
     cmd = [
         sys.executable,
-        str(Path(__file__).resolve().parent.parent / "data" / "generate_corpus.py"),
+        str(script_path),
         "-t", "Law 1: Be Authentic\nAlways be true to yourself.",
         "-o", str(out_file),
     ]

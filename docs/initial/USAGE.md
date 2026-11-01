@@ -70,18 +70,18 @@ rag = GaussianRAG.create()
 
 # 2. Add texts
 rag.add_texts([
-    "Never outshine the master. Make those above you feel comfortably superior.",
-    "Always say less than necessary. When you try to impress people with words, the more you say, the more common you appear.",
-    "Conceal your intentions. Keep people off-balance and in the dark by never revealing the purpose behind your actions.",
+    "Weigh, don't scoop. A cup of flour is a guess; 125 grams is a fact.",
+    "Trust the long cold rise. A dough that spends a night in the fridge bakes better than one you rush.",
+    "Handle the dough gently. Every bubble you crush in the final shape was made by hours of fermentation.",
 ])
 
 # 3. Search using Woodbury-accelerated ELK
-results = rag.search("How should I behave around superiors?", top_k=3)
+results = rag.search("Why is my bread dense?", top_k=3)
 for chunk in results:
     print(f"[{chunk.rank}] (Confidence: {chunk.confidence:.3f}) {chunk.knowledge.text}")
 
 # 4. Generate grounded answer (uses configured provider or SimpleGenerator)
-answer = rag.query("How do you handle insecure leaders?")
+answer = rag.query("How long should the cold rise last?")
 print(answer)
 ```
 
@@ -89,16 +89,17 @@ print(answer)
 
 ```python
 dirty_html = """
-<p>Law 1: Never Outshine the Master<br/>
-Always make those above you feel comfortably su-
-perior. In your desire to please them, do not go too far.</p>
+<p>Law 1: Weigh, Don't Scoop<br/>
+A cup of flour is a guess; 125 grams is a fact. Scooping from the bag
+can pack in fifty extra grams with-
+out you noticing.</p>
 
-<p>Law 2: Never Put Too Much Trust in Friends<br/>
-Former enemies are often more loyal than friends.</p>
+<p>Law 4: Trust The Long Cold Rise<br/>
+Cold slows the yeast but leaves the enzymes working.</p>
 """
 
 # Automatically cleans HTML, repairs hyphenated line wraps, and structures chunks:
-rag.add_raw_text(dirty_html, title="48 Laws Excerpt")
+rag.add_raw_text(dirty_html, title="Baker's Handbook Excerpt")
 ```
 
 ### 3.3 Universal Format Ingestion
@@ -141,8 +142,8 @@ results = loaded_rag.search("vacation allowance", top_k=3)
 The multi-source corpus generator transforms arbitrary unformatted text into structured corpora (JSONL, Markdown, plain text) with SHA256 content-addressed caching.
 
 ```bash
-# 1. Preset 48 Laws of Power benchmark corpus
-python data/generate_corpus.py --preset 48-laws -o data/48_laws_of_power.txt
+# 1. Structure the bundled 12 Laws of Good Bread benchmark corpus
+python data/generate_corpus.py -i benchmarks/bakers_handbook.md -o benchmarks/bakers_handbook.jsonl
 
 # 2. Pipe unformatted text from stdin into JSONL
 cat raw_notes.txt | python data/generate_corpus.py --stdin -o corpus.jsonl
@@ -151,7 +152,7 @@ cat raw_notes.txt | python data/generate_corpus.py --stdin -o corpus.jsonl
 python data/generate_corpus.py -i dirty_scan.txt -o clean_corpus.md -f markdown
 
 # 4. Supply raw text string directly
-python data/generate_corpus.py -t "Law 1: Never outshine the master..." -o laws.jsonl
+python data/generate_corpus.py -t "Law 1: Weigh, don't scoop. A cup of flour is a guess; 125 grams is a fact." -o bread.jsonl
 
 # 5. Enable OpenAI-compatible AI assistant for difficult OCR repairs
 python data/generate_corpus.py -i ocr_scan.txt -o corpus.jsonl --ai
@@ -161,7 +162,7 @@ python data/generate_corpus.py -i ocr_scan.txt -o corpus.jsonl --ai
 
 | Flag | Argument | Description |
 |---|---|---|
-| `--preset` | `48-laws` | Generate built-in benchmark dataset |
+| `--preset` | `NAME` | Generate a built-in benchmark dataset (see `data/generate_corpus.py`) |
 | `-i`, `--input` | `FILE` | Path to raw input file |
 | `-t`, `--text` | `STRING` | Raw unformatted text string |
 | `--stdin` | _(flag)_ | Read raw text piped from standard input |
@@ -190,7 +191,7 @@ python -m gaussian_rag.main ingest \
 ```bash
 python -m gaussian_rag.main query \
   --store .gaussian_rag_store \
-  --text "How should I handle insecure leaders?" \
+  --text "Why did my loaf turn out dense?" \
   --top-k 5 \
   --metric elk
 ```
@@ -200,7 +201,7 @@ python -m gaussian_rag.main query \
 ```bash
 python -m gaussian_rag.main answer \
   --store .gaussian_rag_store \
-  --text "Summarize strategies for managing powerful superiors" \
+  --text "Summarize the steps for a long cold fermentation" \
   --top-k 3
 ```
 
@@ -248,11 +249,11 @@ Visit `http://localhost:5173` to explore:
 
 ## 7. Testing & Verification
 
-### 7.1 End-to-End Evaluation on *The 48 Laws of Power*
-Validates complete pipeline execution with exact-match Law 1 retrieval:
+### 7.1 End-to-End Evaluation on *The 12 Laws of Good Bread*
+Validates complete pipeline execution with exact-match retrieval on the baking corpus:
 
 ```bash
-python test_48_laws_e2e.py
+python test_bakers_handbook_e2e.py
 ```
 
 ### 7.2 Latency Verification (<100ms)

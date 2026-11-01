@@ -64,15 +64,15 @@ def test_in_memory_lockstep_add_and_search():
 def test_in_memory_retriever_hybrid_candidates():
     """Verify retriever.get_hybrid_candidates() gets BM25 hits in pure in-memory mode."""
     store = KnowledgeStore()
-    c1 = _create_sample_chunk("law1", "Never outshine the master. Always make those above you feel superior.")
-    c2 = _create_sample_chunk("law2", "Never put too much trust in friends, learn how to use enemies.")
+    c1 = _create_sample_chunk("law1", "Weigh your flour on a scale instead of scooping a cup.")
+    c2 = _create_sample_chunk("law2", "Rest the dough before shaping, then score it with a sharp blade.")
     store.add([c1, c2])
 
     retriever = GaussianRetriever(store)
     retriever.refresh()
 
     query_mu = np.zeros(16)
-    candidates = retriever.get_hybrid_candidates(query_mu, query_text="master", top_k=5)
+    candidates = retriever.get_hybrid_candidates(query_mu, query_text="flour", top_k=5)
     cand_ids = [c.id for c in candidates]
     assert "law1" in cand_ids
 

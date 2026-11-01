@@ -7,7 +7,7 @@ __pycache__/
 *.py[cod]
 .full_run_store/
 .full_run_store
-.48_laws_store/
+.bakers_handbook_store/
 .visualizer/
 *.egg-info/
 gaussian_rag.egg-info/

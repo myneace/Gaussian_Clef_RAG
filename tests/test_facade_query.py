@@ -28,8 +28,8 @@ from gaussian_rag.core.types import RetrievedChunk
 def rag_with_generator() -> GaussianRAG:
     rag = GaussianRAG.create(use_generator=True)
     rag.add_texts([
-        "Law 1: Never outshine the master. Make those above you feel comfortably superior.",
-        "Law 2: Never put too much trust in friends; learn how to use enemies.",
+        "Law 10: Preheat like you mean it. A soaked stone gives the loaf its first leap.",
+        "Law 11: Embrace the steam. Vapour keeps the crust soft so the loaf finishes expanding.",
     ])
     return rag
 
@@ -43,11 +43,11 @@ def test_create_use_generator_initializes_generator(rag_with_generator: Gaussian
 @pytest.mark.asyncio
 async def test_async_query_returns_query_result(rag_with_generator: GaussianRAG):
     """Verify async query returns QueryResult with non-empty answer."""
-    res = await rag_with_generator.query("How to handle superiors?", top_k=2)
+    res = await rag_with_generator.query("Why does my crust set too early?", top_k=2)
     assert isinstance(res, QueryResult)
     assert isinstance(res, dict)
-    assert res.question == "How to handle superiors?"
-    assert res["question"] == "How to handle superiors?"
+    assert res.question == "Why does my crust set too early?"
+    assert res["question"] == "Why does my crust set too early?"
     assert len(res.retrieved_chunks) >= 1
     assert len(res["retrieved_chunks"]) >= 1
     assert len(res.context) > 0
@@ -59,11 +59,11 @@ async def test_async_query_returns_query_result(rag_with_generator: GaussianRAG)
 
 def test_query_sync_execution(rag_with_generator: GaussianRAG):
     """Verify synchronous query_sync returns QueryResult with answer."""
-    res = rag_with_generator.query_sync("Tell me about friends and enemies", top_k=2)
+    res = rag_with_generator.query_sync("Tell me about steam and crust", top_k=2)
     assert isinstance(res, QueryResult)
-    assert res.question == "Tell me about friends and enemies"
+    assert res.question == "Tell me about steam and crust"
     assert len(res.answer) > 0
-    assert "enemies" in res.answer.lower() or "friends" in res.answer.lower()
+    assert "steam" in res.answer.lower() or "crust" in res.answer.lower()
 
 
 def test_query_sync_flag_delegation(rag_with_generator: GaussianRAG):

@@ -115,9 +115,9 @@ class TestUniversalIngestor:
         """Raw string list is chunked and stored."""
         from gaussian_rag import GaussianKnowledge
         texts = [
-            "Never outshine the master.",
-            "Always say less than necessary.",
-            "Conceal your intentions from others.",
+            "Weigh your flour instead of scooping it.",
+            "Rest the dough before you knead it.",
+            "Shape the loaf with a light hand.",
         ]
         nodes = rag.ingestor.ingest_texts(texts)
         assert len(nodes) >= len(texts), "Expect at least one node per text"
@@ -125,18 +125,18 @@ class TestUniversalIngestor:
 
     def test_ingest_markdown_heading_metadata(self, rag):
         """Markdown headings are captured in node metadata breadcrumbs."""
-        md = """# 48 Laws of Power
+        md = """# The 12 Laws of Good Bread
 
-## Law 1: Never Outshine the Master
+## Law 1: Weigh, Don't Scoop
 
-Always make those above you feel comfortably superior.
-Never show your talents too much.
+A cup of flour is a guess; 125 grams is a fact.
+Scooping from the bag packs in extra flour unnoticed.
 
-## Law 2: Never Put Too Much Trust in Friends
+## Law 2: Hydrate Before You Knead
 
-Friends will betray you more quickly than enemies.
+Mix flour and water alone, then rest for thirty minutes.
 """
-        nodes = rag.ingestor.ingest_markdown(md, document_id="48laws-md-test")
+        nodes = rag.ingestor.ingest_markdown(md, document_id="bakers-handbook-md-test")
         assert len(nodes) >= 2, "Expected at least one node per heading section"
 
         texts_with_breadcrumbs = [
@@ -164,9 +164,9 @@ Some content here.
     def test_ingest_records_json_dicts(self, rag):
         """JSON records are ingested with field extraction."""
         records: list[dict[str, Any]] = [
-            {"id": "law-1", "text": "Never outshine the master", "law": 1},
-            {"id": "law-2", "text": "Never put too much trust in friends", "law": 2},
-            {"id": "law-3", "text": "Conceal your intentions", "law": 3},
+            {"id": "law-1", "text": "Weigh your flour, do not scoop it", "law": 1},
+            {"id": "law-2", "text": "Let the dough rest before kneading", "law": 2},
+            {"id": "law-3", "text": "Salt is not optional", "law": 3},
         ]
         nodes = rag.ingestor.ingest_records(records, text_field="text", id_field="id")
         assert len(nodes) >= 3
@@ -177,13 +177,11 @@ Some content here.
     def test_ingest_records_custom_text_field(self, rag):
         """Custom text_field parameter is respected."""
         records = [
-            {"title": "Law of Power", "description": "The master must never be outshone"},
+            {"title": "Recipe Index", "description": "Every baker eventually masters the same three basics."},
         ]
         nodes = rag.ingestor.ingest_records(records, text_field="description")
         assert len(nodes) >= 1
-        assert "master must never" in nodes[0].text.lower() or any(
-            "master" in n.text.lower() for n in nodes
-        )
+        assert "masters the same three basics" in nodes[0].text.lower()
 
     def test_ingest_file_plain_text(self, rag):
         """Plain .txt file is ingested as raw text."""
@@ -191,8 +189,8 @@ Some content here.
             mode="w", suffix=".txt", delete=False, encoding="utf-8"
         ) as fh:
             fh.write(
-                "Law 1: Never outshine the master.\n\n"
-                "Law 2: Always say less than necessary.\n"
+                "Law 1: Weigh, don't scoop.\n\n"
+                "Law 2: Hydrate before you knead.\n"
             )
             txt_path = Path(fh.name)
         try:
@@ -203,7 +201,7 @@ Some content here.
 
     def test_ingest_file_markdown(self, rag):
         """Markdown .md file is parsed with heading metadata."""
-        content = "# Powers\n\n## Law 1\n\nNever outshine the master.\n"
+        content = "# Baking\n\n## Law 1\n\nWeigh, don't scoop.\n"
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".md", delete=False, encoding="utf-8"
         ) as fh:
@@ -220,8 +218,8 @@ Some content here.
     def test_ingest_file_json(self, rag):
         """JSON array file is ingested as records."""
         data = [
-            {"id": "r1", "text": "Power corrupts absolutely."},
-            {"id": "r2", "text": "Trust no one completely."},
+            {"id": "r1", "text": "Flour absorbs water differently in each kitchen."},
+            {"id": "r2", "text": "Cold slows the yeast but not the flavour."},
         ]
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".json", delete=False, encoding="utf-8"
@@ -258,14 +256,14 @@ Some content here.
         ) as fh:
             writer = csv.DictWriter(fh, fieldnames=["id", "text", "category"])
             writer.writeheader()
-            writer.writerow({"id": "c1", "text": "Power is about perception.", "category": "psychology"})
-            writer.writerow({"id": "c2", "text": "Never show weakness to adversaries.", "category": "strategy"})
+            writer.writerow({"id": "c1", "text": "Hydration changes how the dough feels.", "category": "baking"})
+            writer.writerow({"id": "c2", "text": "A sharp blade scores better than a dull one.", "category": "technique"})
             csv_path = Path(fh.name)
         try:
             nodes = rag.ingestor.ingest_file(csv_path)
             assert len(nodes) >= 2
             categories = [n.metadata.get("category") for n in nodes]
-            assert "psychology" in categories or "strategy" in categories
+            assert "baking" in categories or "technique" in categories
         finally:
             csv_path.unlink(missing_ok=True)
 
@@ -300,7 +298,7 @@ class TestGaussianRAGFacade:
     def test_add_texts_returns_nodes(self):
         from gaussian_rag import GaussianKnowledge
         nodes = self.rag.add_texts(
-            ["Never outshine the master.", "Conceal your intentions."]
+            ["Weigh your flour, do not scoop it.", "Rest the dough before shaping."]
         )
         assert len(nodes) >= 2
         assert all(isinstance(n, GaussianKnowledge) for n in nodes)
@@ -315,14 +313,14 @@ class TestGaussianRAGFacade:
         assert 1 in law_vals or 2 in law_vals
 
     def test_add_markdown(self):
-        md = "# Laws\n\n## Law 1\n\nNever outshine the master.\n"
+        md = "# Laws\n\n## Law 1\n\nWeigh, don't scoop.\n"
         nodes = self.rag.add_markdown(md, document_id="test-laws")
         assert len(nodes) >= 1
 
     def test_add_records(self):
         records = [
-            {"id": "l1", "text": "Never outshine the master."},
-            {"id": "l2", "text": "Never trust friends completely."},
+            {"id": "l1", "text": "Weigh, don't scoop."},
+            {"id": "l2", "text": "Salt is not optional."},
         ]
         nodes = self.rag.add_records(records)
         assert len(nodes) >= 2
@@ -331,7 +329,7 @@ class TestGaussianRAGFacade:
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".txt", delete=False, encoding="utf-8"
         ) as fh:
-            fh.write("Power is wielded by those who understand human nature.")
+            fh.write("Good bread is built by those who respect the clock.")
             txt_path = Path(fh.name)
         try:
             nodes = self.rag.add_file(txt_path)
@@ -344,20 +342,20 @@ class TestGaussianRAGFacade:
     def test_search_returns_relevant_chunks(self):
         from gaussian_rag import RetrievedChunk
         self.rag.add_texts([
-            "Never outshine the master. Make those above you feel superior.",
-            "Always say less than necessary. Silence preserves power.",
-            "Conceal your intentions to keep others off-balance.",
+            "Weigh your flour. A scooped cup quietly adds fifty extra grams.",
+            "Trust the long cold rise. Overnight in the fridge builds flavour.",
+            "Handle the dough gently so the bubbles you grew survive shaping.",
         ])
-        results = self.rag.search("How to behave around powerful people?", top_k=3)
+        results = self.rag.search("Why is my loaf dense?", top_k=3)
         assert isinstance(results, list)
         assert len(results) >= 1
         assert all(isinstance(r, RetrievedChunk) for r in results)
 
     def test_search_returns_scores(self):
         self.rag.add_texts([
-            "Trust no one completely, not even your closest allies.",
+            "Fermentation keeps working whether you are watching or not.",
         ])
-        results = self.rag.search("Trust and betrayal", top_k=5)
+        results = self.rag.search("Time and fermentation", top_k=5)
         for chunk in results:
             assert chunk.confidence is not None
             assert chunk.rank is not None
@@ -376,13 +374,13 @@ class TestGaussianRAGFacade:
     def test_save_and_load_round_trip(self):
         """Saved store can be loaded and searched with the same results."""
         texts = [
-            "Never outshine the master.",
-            "Always say less than necessary.",
-            "Conceal your intentions.",
+            "Weigh your flour on a scale instead of scooping a cup.",
+            "Let the dough rest before you knead it.",
+            "Give the oven a long, generous preheat.",
         ]
         self.rag.add_texts(texts)
         original_count = self.rag.item_count
-        original_results = self.rag.search("outshine master", top_k=3)
+        original_results = self.rag.search("weigh flour", top_k=3)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             saved_path = self.rag.save(tmpdir)
@@ -393,7 +391,7 @@ class TestGaussianRAGFacade:
             loaded_rag = GaussianRAG.load(tmpdir)
             assert loaded_rag.item_count == original_count
 
-            loaded_results = loaded_rag.search("outshine master", top_k=3)
+            loaded_results = loaded_rag.search("weigh flour", top_k=3)
             assert len(loaded_results) >= 1, "Load + search must return results"
 
             # Top result texts should overlap
@@ -434,11 +432,11 @@ class TestStandaloneOperation:
         from gaussian_rag import GaussianRAG
         rag = GaussianRAG.create(use_clef=False)
         rag.add_texts([
-            "The 48 Laws of Power describe strategies for gaining power.",
-            "Law 1 warns never to outshine the master.",
-            "Law 3 says to conceal your intentions.",
+            "The 12 Laws of Good Bread cover basics for baking at home.",
+            "Law 1 says to weigh your flour instead of scooping it.",
+            "Law 3 says salt is not optional.",
         ])
-        results = rag.search("How to gain power?", top_k=3)
+        results = rag.search("How do I bake better bread?", top_k=3)
         assert len(results) >= 1
 
     @pytest.mark.asyncio
@@ -446,14 +444,14 @@ class TestStandaloneOperation:
         """async query() works locally — returns empty answer without generator."""
         from gaussian_rag import GaussianRAG
         rag = GaussianRAG.create(use_clef=False, use_generator=False)
-        rag.add_texts(["Power is understanding human nature."])
+        rag.add_texts(["Bread is flour, water, salt and time."])
 
-        result = await rag.query("What is power?", top_k=3)
+        result = await rag.query("What is bread?", top_k=3)
         assert "question" in result
         assert "retrieved_chunks" in result
         assert "context" in result
         assert "answer" in result
-        assert result["question"] == "What is power?"
+        assert result["question"] == "What is bread?"
         assert result["answer"] == "", "No generator — answer should be empty string"
 
     def test_repr(self):

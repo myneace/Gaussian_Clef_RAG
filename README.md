@@ -28,12 +28,12 @@ from gaussian_rag import GaussianRAG
 
 rag = GaussianRAG.create()
 rag.add_texts([
-    "Never outshine the master. Make those above you feel comfortably superior.",
-    "Always say less than necessary. When you try to impress people with words, the more you say, the more common you appear.",
-    "Conceal your intentions. Keep people off-balance and in the dark by never revealing the purpose behind your actions.",
+    "Weigh, don't scoop. A cup of flour is a guess; 125 grams is a fact.",
+    "Trust the long cold rise. A dough that spends a night in the fridge bakes better than one you rush out in the afternoon.",
+    "Handle the dough gently. Every bubble you crush in the final shape was made by hours of careful fermentation.",
 ])
 
-results = rag.search("How should I behave around powerful people?", top_k=3)
+results = rag.search("Why is my loaf coming out dense?", top_k=3)
 for chunk in results:
     print(f"[{chunk.rank}] {chunk.knowledge.text} (confidence: {chunk.confidence:.3f})")
 ```
@@ -41,7 +41,7 @@ for chunk in results:
 Ask questions with grounded answer synthesis (optional OpenAI, Gemini, or Mistral provider):
 
 ```python
-answer = rag.query("How do you handle insecure superiors?")
+answer = rag.query("How long should I let the dough rise in the fridge?")
 print(answer)
 ```
 
@@ -78,8 +78,8 @@ The `gaussian_rag.creator` package features an intelligent, multi-stage text nor
 Generate benchmark corpora or process arbitrary raw text from files or stdin:
 
 ```bash
-# 1. Generate standard 48 Laws of Power benchmark corpus
-python data/generate_corpus.py --preset 48-laws -o data/48_laws_of_power.txt
+# 1. Structure the bundled 12 Laws of Good Bread benchmark corpus
+python data/generate_corpus.py -i benchmarks/bakers_handbook.md -o benchmarks/bakers_handbook.jsonl
 
 # 2. Pipe messy, unformatted text from stdin directly into structured JSONL
 cat raw_notes.txt | python data/generate_corpus.py --stdin -o corpus.jsonl
@@ -88,7 +88,7 @@ cat raw_notes.txt | python data/generate_corpus.py --stdin -o corpus.jsonl
 python data/generate_corpus.py -i dirty_scan.txt -o clean_corpus.md -f markdown
 
 # 4. Pass raw text directly via argument
-python data/generate_corpus.py -t "Law 1: Never outshine the master..." -o laws.jsonl
+python data/generate_corpus.py -t "Law 1: Weigh, don't scoop. A cup of flour is a guess; 125 grams is a fact." -o bread.jsonl
 
 # 5. Optional AI-assisted normalization using OpenAI-compatible endpoints
 python data/generate_corpus.py -i ocr_scan.txt -o corpus.jsonl --ai
@@ -105,18 +105,19 @@ rag = GaussianRAG.create()
 
 # Raw messy HTML/OCR text
 dirty_text = """
-<p>Law 1: Never Outshine the Master<br/>
-Always make those above you feel comfortably su-
-perior. In your desire to please them, do not go too far.</p>
+<p>Law 1: Weigh, Don't Scoop<br/>
+A cup of flour is a guess; 125 grams is a fact. Scooping from the bag
+can pack in fifty extra grams with-
+out you noticing.</p>
 
-<p>Law 2: Never Put Too Much Trust in Friends<br/>
-Former enemies are often more loyal than friends.</p>
+<p>Law 4: Trust The Long Cold Rise<br/>
+A dough that spends a night in the fridge bakes better than one you rush.</p>
 """
 
 # Normalizes, structures, embeds as Gaussians, and updates both stores in 1 call:
-rag.add_raw_text(dirty_text, title="48 Laws Excerpt")
+rag.add_raw_text(dirty_text, title="Baker's Handbook Excerpt")
 
-results = rag.search("How to handle superiors?")
+results = rag.search("how much flour should I use?")
 print(results[0].knowledge.text)
 ```
 
@@ -138,13 +139,13 @@ rag.add_texts([
 ], metadata=[{"source": "memo1"}, {"source": "memo2"}])
 
 # 2. Ingest Markdown with Heading Hierarchy (Breadcrumbs preserved in metadata)
-markdown_content = """# 48 Laws of Power
-## Law 1: Never Outshine the Master
-Always make those above you feel comfortably superior.
-## Law 2: Never Put Too Much Trust in Friends
-Friends will betray you more quickly than enemies.
+markdown_content = """# The 12 Laws of Good Bread
+## Law 1: Weigh, Don't Scoop
+A cup of flour is a guess; 125 grams is a fact.
+## Law 2: Hydrate Before You Knead
+Mix flour and water alone, then rest for thirty minutes.
 """
-rag.add_markdown(markdown_content, document_id="48-laws")
+rag.add_markdown(markdown_content, document_id="bakers-handbook")
 
 # 3. Ingest Structured JSON / JSONL Records
 records = [
@@ -175,7 +176,7 @@ rag.save("my_knowledge_store")
 from gaussian_rag import GaussianRAG
 
 loaded_rag = GaussianRAG.load("my_knowledge_store")
-results = loaded_rag.search("insecure bosses and power dynamics", top_k=5)
+results = loaded_rag.search("cold fermentation and oven steam", top_k=5)
 ```
 
 ---
@@ -211,11 +212,11 @@ This achieves **sub-3ms reranking across dozens of candidate passages**.
 
 ## 🛠️ CLI Usage & Evaluation
 
-### Run End-to-End Evaluation on *The 48 Laws of Power*
+### Run End-to-End Evaluation on *The 12 Laws of Good Bread*
 Validates live Clef disambiguation, taxonomy pruning, FTS5 pre-filtering, passage gating, and exact-match retrieval:
 
 ```bash
-python test_48_laws_e2e.py
+python test_bakers_handbook_e2e.py
 ```
 
 ### Ingest and Query via CLI
@@ -224,7 +225,7 @@ python test_48_laws_e2e.py
 python -m gaussian_rag.main ingest --input data/my_docs --output .my_store
 
 # Query store with ELK metric
-python -m gaussian_rag.main query --text "How should I handle rivals?" --store .my_store --metric elk
+python -m gaussian_rag.main query --text "Why did my crust set before the loaf finished rising?" --store .my_store --metric elk
 ```
 
 ### Run Latency & Benchmark Verification

@@ -38,23 +38,23 @@ def test_lexical_store_upsert_dedup():
     """Verify LexicalStore.add_passages() upserts matching chunk_ids without inflating row count."""
     lex = LexicalStore(":memory:")
     passages = [
-        ("p1", "doc1", "Law 1: Never outshine the master."),
-        ("p2", "doc1", "Law 2: Never put too much trust in friends."),
+        ("p1", "doc1", "Law 1: Weigh your flour, do not scoop it."),
+        ("p2", "doc1", "Law 2: Rest the dough before you knead."),
     ]
     lex.add_passages(passages)
     assert lex.count() == 2
 
     # Re-insert p1 with updated wording
-    updated = [("p1", "doc1", "Law 1: Always make superiors look brilliant.")]
+    updated = [("p1", "doc1", "Law 1: A kitchen scale beats a cup every time.")]
     lex.add_passages(updated)
     assert lex.count() == 2, f"Expected 2 rows after upsert, got {lex.count()}"
 
     # Search confirms updated text is indexed and old text is gone
-    hits_new = lex.search("brilliant")
+    hits_new = lex.search("scale")
     assert len(hits_new) == 1
     assert hits_new[0][0] == "p1"
 
-    hits_old = lex.search("outshine")
+    hits_old = lex.search("scoop")
     assert len(hits_old) == 0
 
 

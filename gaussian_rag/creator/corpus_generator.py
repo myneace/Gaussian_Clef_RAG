@@ -227,7 +227,7 @@ class CorpusGenerator:
         self, text: str, prefix: str, doc_title: str
     ) -> list[CorpusDocument] | None:
         """Parse documents split by 'Law 1:', 'Section 1:', 'Article IV:', etc."""
-        # Match e.g. "Law 1: Never Outshine the Master" or "Section 2. Title"
+        # Match e.g. "Law 1: Weigh, Don't Scoop" or "Section 2. Title"
         pattern = re.compile(
             r"(?m)^(?:#{1,3}\s*)?(?:(Law|Rule|Section|Chapter|Article|Item)\s+([0-9IVXLCDM]+)(?:[:.\s-]+([^\n]+))?)"
         )

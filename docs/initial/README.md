@@ -34,7 +34,7 @@ Retrieval operates through **Expected Likelihood Kernel (ELK)** overlap on the s
 | [PIPELINE.md](./PIPELINE.md) | **Pipeline Specification** — 6-stage sub-100ms retrieval and dual-store universal ingestion |
 | [DECISIONS.md](./DECISIONS.md) | **Design Decisions** — Architectural decision records (DD-01 through DD-15) |
 | [THEORY.md](./THEORY.md) | **Mathematical Foundations** — Information geometry, SPD manifolds, and Woodbury ELK derivation |
-| [EXPERIMENTS.md](./EXPERIMENTS.md) | **Experiments & Benchmarks** — Latency tests, *48 Laws of Power* exact-match verification, ablation |
+| [EXPERIMENTS.md](./EXPERIMENTS.md) | **Experiments & Benchmarks** — Latency tests, *The 12 Laws of Good Bread* exact-match verification, ablation |
 | [RESEARCH_QUESTIONS.md](./RESEARCH_QUESTIONS.md) | **Research Questions** — 20 backbone theoretical and empirical questions |
 | [../ABOUT.md](../ABOUT.md) | **PyTorch SigmaHead** — Learned covariance estimation and continual online radiation learning |
 
@@ -86,12 +86,12 @@ rag = GaussianRAG.create()
 
 # Ingest texts or raw messy text
 rag.add_texts([
-    "Never outshine the master. Make those above you feel comfortably superior.",
-    "Conceal your intentions. Keep people off-balance and in the dark.",
+    "Weigh, don't scoop. A cup of flour is a guess; 125 grams is a fact.",
+    "Handle the dough gently. Every bubble you crush in the final shape was earned by fermentation.",
 ])
 
 # Search with sub-100ms Woodbury ELK
-results = rag.search("How to handle superiors?", top_k=3)
+results = rag.search("Why is my bread dense?", top_k=3)
 for chunk in results:
     print(f"[{chunk.rank}] {chunk.knowledge.text} (confidence: {chunk.confidence:.3f})")
 ```

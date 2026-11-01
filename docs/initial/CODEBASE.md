@@ -27,7 +27,7 @@ GaussianRag/
 ├── dashboard/                           # React + Vite 3D Manifold visualization interface
 │   ├── src/                             # Three.js / Canvas 3D ellipsoid rendering & SSE hooks
 │   └── package.json
-├── data/
+├── data/                                # Gitignored working area (not present in a fresh clone)
 │   ├── generate_corpus.py               # Flexible multi-source corpus generator CLI
 │   └── training/                        # Contrastive training corpus for SigmaHead
 ├── docs/                                # Comprehensive documentation hub
@@ -92,7 +92,8 @@ GaussianRag/
 │   ├── training/                        # SigmaHead PyTorch models, contrastive losses, trainer
 │   └── evaluation/                      # Benchmark loaders and retrieval metrics (nDCG, Recall)
 ├── dashboard_server.py                  # FastAPI telemetry backend broadcasting live stage timings
-├── test_48_laws_e2e.py                  # Live 48 Laws of Power end-to-end benchmark
+├── test_bakers_handbook_e2e.py          # Live 12 Laws of Good Bread end-to-end benchmark
+├── benchmarks/                          # Tracked benchmark corpora (bakers_handbook.md)
 ├── tests/                               # Comprehensive unit and integration test suite
 ├── pyproject.toml                       # Standalone packaging metadata and dependencies
 └── README.md                            # Project overview and quick start guide
@@ -208,5 +209,5 @@ gaussian_rag/core/store.py ─────────────────�
 | **Telemetry Server** | `dashboard_server.py` | FastAPI SSE server streaming real-time stage latencies |
 | **3D Dashboard** | `dashboard/` | Interactive Vite/React 3D manifold visualizer |
 | **CLI Commands** | `gaussian_rag/main.py` | Subcommands: `ingest`, `query`, `answer`, `polysemy-query`, `visualize` |
-| **End-to-End Test** | `test_48_laws_e2e.py` | Full validation script on *The 48 Laws of Power* |
+| **End-to-End Test** | `test_bakers_handbook_e2e.py` | Full validation script on *The 12 Laws of Good Bread* |
 | **Test Suite** | `pytest` | Comprehensive unit and integration tests |
